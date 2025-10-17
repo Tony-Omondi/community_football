@@ -1,6 +1,7 @@
 from django.urls import path
-from . import views
+from .views import TeamListCreateView, TeamDetailView
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', TeamListCreateView.as_view(), name='team-list-create'),
+    path('<int:pk>/', TeamDetailView.as_view(), name='team-detail'),
 ]

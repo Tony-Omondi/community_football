@@ -1,6 +1,7 @@
 from django.urls import path
-from . import views
+from .views import StandingListCreateView, StandingDetailView
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', StandingListCreateView.as_view(), name='standing-list-create'),
+    path('<int:pk>/', StandingDetailView.as_view(), name='standing-detail'),
 ]

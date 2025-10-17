@@ -22,8 +22,18 @@ class User(AbstractUser):
 
 
 class Player(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='player_profile')
-    team = models.ForeignKey('teams.Team', on_delete=models.CASCADE, related_name='players', null=True, blank=True)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='player_profile'
+    )
+    team = models.ForeignKey(
+        'teams.Team',
+        on_delete=models.CASCADE,
+        related_name='players',
+        null=True,
+        blank=True
+    )
     position = models.CharField(max_length=50, blank=True)
     jersey_number = models.PositiveIntegerField(null=True, blank=True)
 
@@ -32,8 +42,19 @@ class Player(models.Model):
 
 
 class Coach(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='coach_profile')
-    team = models.OneToOneField('teams.Team', on_delete=models.SET_NULL, null=True, blank=True, related_name='coach')
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='coach_profile'
+    )
+    # ✅ Renamed related_name to avoid clash with Team.coach field
+    team = models.OneToOneField(
+        'teams.Team',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_coach'
+    )
     experience_years = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -41,15 +62,23 @@ class Coach(models.Model):
 
 
 class LeagueOfficial(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='official_profile')
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='official_profile'
+    )
     position = models.CharField(max_length=100, blank=True)
-    overseeing_tournaments = models.ManyToManyField('tournaments.Tournament', blank=True, related_name='officials')
+    overseeing_tournaments = models.ManyToManyField(
+        'tournaments.Tournament',
+        blank=True,
+        related_name='officials'
+    )
 
     def __str__(self):
         return f"Official {self.user.get_full_name()} ({self.position})"
 
 
-# 🔔 Automatically create related profiles when admin creates coaches/officials/players
+# 🔔 Automatically create related profiles when a User is created
 @receiver(post_save, sender=User)
 def create_related_profile(sender, instance, created, **kwargs):
     if created:
